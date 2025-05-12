@@ -12,7 +12,46 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        dd('index');
+        $employee = Employee::all();
+
+        return view('employees.index', ['employees' => $employee]);
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:csv,txt',
+        ], [
+            'file.required' => 'É obrigatório selecionar um arquivo.',
+            'file.mimes' => 'O arquivo deve ser um CSV.',
+        ]);
+
+        $headers = ['name', 'email', 'cpf', 'city', 'state'];
+
+        $dataFile = array_map('str_getcsv', file($request->file('file')));
+
+        $cpfAlreadyExist = false;
+
+        foreach ($dataFile as $keyData => $row) {
+            foreach ($headers as $key => $header) {
+
+                if ($header === 'cpf' ) {
+                    if (Employee::where('cpf', $row[$key])->first()) {
+                        $cpfAlreadyExist .= $row[$key] . ', ';
+                    }
+                }
+
+                $arrayValues[$keyData][$header] = $row[$key];
+            }
+        }
+
+        if ($cpfAlreadyExist) {
+            return redirect()->back()->with('error', 'Arquivo não importado. Existem CPFs já cadastrados: ' . $cpfAlreadyExist);
+        }
+
+        Employee::insert($arrayValues);
+
+        return redirect()->back()->with('success', 'Arquivo importado com sucesso.');
     }
 
     /**
