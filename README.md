@@ -7,7 +7,7 @@ API de colaboradores para o teste técnico da Convenia
 - Composer
 
 ### Para rodar o projeto
-1. git clone https://github.com/jose-marquez89/api-employees-convenia.git
+1. git clone https://github.com/emanuellyv/api-employees-convenia.git
 2. composer install
 3. cp .env.example .env
 4. php artisan key:generate
