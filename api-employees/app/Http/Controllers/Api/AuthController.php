@@ -12,6 +12,12 @@ use App\Http\Requests\LoginRequest;
 
 class AuthController extends Controller
 {
+    /**
+     * Realiza o login de um gestor, retornando o token JWT de autenticação
+     *
+     * @param LoginRequest $request
+     * @return JsonResponse
+     */
     public function login(LoginRequest $request): JsonResponse
     {
         $credentials = $request->only('email', 'password');
@@ -26,18 +32,37 @@ class AuthController extends Controller
         return $this->respondWithToken($token);
     }
 
+    /**
+     * Realiza o logout do gestor autenticado, invalidando o token JWT
+     *
+     * @return JsonResponse
+     */
     public function logout(): JsonResponse
     {
         auth('manager')->logout();
 
-        return response()->json(['message' => 'Logout realizado com sucesso']);
+        return response()->json([
+            'status' => true,
+            'message' => 'Logout realizado com sucesso'
+        ]);
     }
 
+    /**
+     * Gera um novo token JWT para o gestor autenticado
+     *
+     * @return JsonResponse
+     */
     public function refresh(): JsonResponse
     {
         return $this->respondWithToken(auth('manager')->refresh());
     }
 
+    /**
+     * Retorna um JSON com o token JWT, tipo do token, tempo de expiração e dados do gestor autenticado.
+     *
+     * @param $token
+     * @return JsonResponse
+     */
     protected function respondWithToken($token): JsonResponse
     {
         return response()->json([

@@ -13,6 +13,11 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ManagerController extends Controller
 {
+    /**
+     * Lista todos os gestores cadastrados no sistema.
+     *
+     * @return JsonResponse
+     */
     public function index(): JsonResponse
     {
         $managers = Manager::orderBy('name', 'asc')->get();
@@ -23,6 +28,12 @@ class ManagerController extends Controller
         ], 200);
     }
 
+    /**
+     * Cadastra um novo gestor no sistema
+     *
+     * @param ManagerRequest $request
+     * @return JsonResponse
+     */
     public function store(ManagerRequest $request): JsonResponse
     {
         DB::beginTransaction();
@@ -31,7 +42,7 @@ class ManagerController extends Controller
             $manager = Manager::create([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => $request->password
+                'password' => bcrypt($request->password)
             ]);
             DB::commit();
 
@@ -49,6 +60,12 @@ class ManagerController extends Controller
         }
     }
 
+    /**
+     * Exibe os dados de um gestor específico
+     *
+     * @param Manager $manager
+     * @return JsonResponse
+     */
     public function show(Manager $manager): JsonResponse
     {
         return response()->json([
@@ -57,6 +74,13 @@ class ManagerController extends Controller
         ], 200);
     }
 
+    /**
+     * Atualiza os dados de um gestor
+     *
+     * @param ManagerRequest $request
+     * @param Manager $manager
+     * @return JsonResponse
+     */
     public function update(ManagerRequest $request, Manager $manager): JsonResponse
     {
         DB::beginTransaction();
@@ -65,7 +89,7 @@ class ManagerController extends Controller
             $manager->update([
                 'name' => $request->name,
                 'email' => $request->email,
-                'password' => $request->password
+                'password' => bcrypt($request->password)
             ]);
             DB::commit();
 
@@ -83,6 +107,12 @@ class ManagerController extends Controller
         }
     }
 
+    /**
+     * Remove um gestor do sistema
+     *
+     * @param Manager $manager
+     * @return JsonResponse
+     */
     public function destroy(Manager $manager): JsonResponse
     {
         DB::beginTransaction();
@@ -96,31 +126,11 @@ class ManagerController extends Controller
                 'message' => 'Gestor excluído com sucesso.'
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => false,
                 'message' => 'Erro ao excluir o gestor.'
             ], 400);
         }
     }
-
-//    public function login(LoginRequest $request): JsonResponse
-//    {
-//        $credentials = $request->only(['email', 'password']);
-//
-//        if (!$token = auth('manager')->attempt($credentials)) {
-//            return response()->json([
-//                'status' => false,
-//                'message' => 'Credenciais inválidas',
-//            ], 401);
-//        }
-//
-//        return response()->json([
-//            'status' => true,
-//            'access_token' => $token,
-//            'token_type' => 'bearer',
-//            'expires_in' => auth('manager')->factory()->getTTL() * 60,
-//            'manager' => auth('manager')->user(),
-//        ]);
-//
-//    }
 }

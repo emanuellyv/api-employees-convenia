@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\DB;
 class EmployeeController extends Controller
 {
 
+    /**
+     * Lista todos os colaboradores vinculados ao gestor autenticado
+     *
+     * @return JsonResponse
+     */
     public function index(): JsonResponse
     {
         $manager = auth('manager')->user();
@@ -23,6 +28,12 @@ class EmployeeController extends Controller
         ], 200);
     }
 
+    /**
+     * Cadastra um novo colaborador e vincula ao gestor autenticado
+     *
+     * @param EmployeeRequest $request
+     * @return JsonResponse
+     */
     public function store(EmployeeRequest $request): JsonResponse
     {
         DB::beginTransaction();
@@ -53,16 +64,43 @@ class EmployeeController extends Controller
         }
     }
 
+    /**
+     * Retorna os dados do colaborador informado na URL
+     *
+     * @param Employee $employee
+     * @return JsonResponse
+     */
     public function show(Employee $employee): JsonResponse
     {
+        if ($employee->manager_id !== auth('manager')->id()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Acesso não autorizado.'
+            ], 403);
+        }
+
         return response()->json([
             'status' => true,
             'message' => $employee
         ], 200);
     }
 
+    /**
+     * Atualiza os dados do colaborador
+     *
+     * @param EmployeeRequest $request
+     * @param Employee $employee
+     * @return JsonResponse
+     */
     public function update(EmployeeRequest $request, Employee $employee): JsonResponse
     {
+        if ($employee->manager_id !== auth('manager')->id()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Acesso não autorizado.'
+            ], 403);
+        }
+
         DB::beginTransaction();
 
         try {
@@ -89,8 +127,21 @@ class EmployeeController extends Controller
         }
     }
 
+    /**
+     * Deleta um colaborador do banco de dados
+     *
+     * @param Employee $employee
+     * @return JsonResponse
+     */
     public function destroy(Employee $employee): JsonResponse
     {
+        if ($employee->manager_id !== auth('manager')->id()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Acesso não autorizado.'
+            ], 403);
+        }
+
         DB::beginTransaction();
 
         try {
@@ -110,6 +161,13 @@ class EmployeeController extends Controller
         }
     }
 
+    /**
+     * Importa colaboradores em massa a partir de um arquivo CSV e retorna a quantidade cadastrada
+     * O arquivo CSV deve conter os cabeçalhos: name, email, cpf, city, state
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function import(Request $request): JsonResponse
     {
         $request->validate([
@@ -132,7 +190,7 @@ class EmployeeController extends Controller
 
                 if ($header === 'cpf' ) {
                     if (Employee::where('cpf', $row[$key])->first()) {
-                        $cpfAlreadyExist[] .= $row[$key];
+                        $cpfAlreadyExist[] = $row[$key];
                     }
                 }
 
