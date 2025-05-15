@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
 use App\Http\Requests\ManagerRequest;
 use App\Models\Manager;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ManagerController extends Controller
 {
@@ -27,7 +30,8 @@ class ManagerController extends Controller
         try {
             $manager = Manager::create([
                 'name' => $request->name,
-                'email' => $request->email
+                'email' => $request->email,
+                'password' => $request->password
             ]);
             DB::commit();
 
@@ -60,7 +64,8 @@ class ManagerController extends Controller
         try {
             $manager->update([
                 'name' => $request->name,
-                'email' => $request->email
+                'email' => $request->email,
+                'password' => $request->password
             ]);
             DB::commit();
 
@@ -97,4 +102,25 @@ class ManagerController extends Controller
             ], 400);
         }
     }
+
+//    public function login(LoginRequest $request): JsonResponse
+//    {
+//        $credentials = $request->only(['email', 'password']);
+//
+//        if (!$token = auth('manager')->attempt($credentials)) {
+//            return response()->json([
+//                'status' => false,
+//                'message' => 'Credenciais inválidas',
+//            ], 401);
+//        }
+//
+//        return response()->json([
+//            'status' => true,
+//            'access_token' => $token,
+//            'token_type' => 'bearer',
+//            'expires_in' => auth('manager')->factory()->getTTL() * 60,
+//            'manager' => auth('manager')->user(),
+//        ]);
+//
+//    }
 }

@@ -10,9 +10,11 @@ use Illuminate\Support\Facades\DB;
 
 class EmployeeController extends Controller
 {
+
     public function index(): JsonResponse
     {
-        $employees = Employee::orderBy('name', 'asc')->get();
+        $manager = auth('manager')->user();
+        $employees = $manager->employees;
 
         return response()->json([
             'status' => true,
@@ -25,7 +27,9 @@ class EmployeeController extends Controller
         DB::beginTransaction();
 
         try {
-            $employee = Employee::create([
+            $manager = auth('manager')->user();
+
+            $employee = $manager->employees()->create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'cpf' => $request->cpf,
