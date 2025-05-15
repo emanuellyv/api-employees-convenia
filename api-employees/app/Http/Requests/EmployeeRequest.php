@@ -30,8 +30,8 @@ class EmployeeRequest extends FormRequest
 
         return [
             'name' => 'required',
-            'email' => 'required|email|unique:employees,email,' . ($employeeId ? $employeeId->id : null),
-            'cpf' => 'required',
+            'email' => 'required|email',
+            'cpf' => 'required|unique:employees,cpf,' . ($employeeId ? $employeeId->id : null),
             'city' => 'required',
             'state' => 'required'
         ];
@@ -43,7 +43,7 @@ class EmployeeRequest extends FormRequest
             'name.required' => 'É obrigatório informar o nome do colaborador',
             'email.required' => 'É obrigatório informar o email do colaborador',
             'email.email' => 'É necessário informar um email válido.',
-            'email.unique' => 'O email informado já está cadastrado.',
+            'cpf.unique' => 'O CPF informado já está cadastrado.',
             'cpf.required' => 'É obrigatório informar o CPF do colaborador',
             'city.required' => 'É obrigatório informar a cidade do colaborador',
             'state.required' => 'É obrigatório informar o estado do colaborador',
