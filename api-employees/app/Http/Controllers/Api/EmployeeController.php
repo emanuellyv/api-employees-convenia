@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\EmployeeRequest;
 use App\Models\Employee;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class EmployeeController extends Controller
@@ -107,5 +108,53 @@ class EmployeeController extends Controller
                 'message' => 'Erro ao excluir o colaborador.'
             ], 400);
         }
+    }
+
+    public function import(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file' => 'required|mimes:csv,txt',
+        ], [
+            'file.required' => 'É obrigatório selecionar um arquivo.',
+            'file.mimes' => 'O arquivo deve ser um CSV.',
+        ]);
+
+        $headers = ['name', 'email', 'cpf', 'city', 'state'];
+
+        $dataFile = array_map('str_getcsv', file($request->file('file')->getRealPath()));
+        $headersRow = array_shift($dataFile);
+
+        $cpfAlreadyExist = [];
+        $arrayValues = [];
+
+        foreach ($dataFile as $keyData => $row) {
+            foreach ($headers as $key => $header) {
+
+                if ($header === 'cpf' ) {
+                    if (Employee::where('cpf', $row[$key])->first()) {
+                        $cpfAlreadyExist[] .= $row[$key];
+                    }
+                }
+
+                $arrayValues[$keyData][$header] = $row[$key];
+            }
+            $arrayValues[$keyData]['manager_id'] = auth('manager')->id();
+        }
+
+        if (!empty($cpfAlreadyExist)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Existem CPFs já cadastrados.',
+                'cpf_already_exist' => $cpfAlreadyExist,
+            ], 409);
+        }
+
+        Employee::insert($arrayValues);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Arquivo importado com sucesso.',
+            'total_rows' => count($arrayValues)
+        ], 201);
     }
 }
