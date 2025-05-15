@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EmployeeRequest;
+use App\Mail\EmployeeImportSuccess;
 use App\Models\Employee;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class EmployeeController extends Controller
 {
@@ -209,10 +211,20 @@ class EmployeeController extends Controller
 
         Employee::insert($arrayValues);
 
+        $managerName = auth('manager')->user();
+        $totalEmployeesImported = (int) count($arrayValues);
+        $fileName = $request->file('file')->getClientOriginalName();
+
+        Mail::to($managerName->email)->send(new EmployeeImportSuccess(
+            $managerName->name,
+            $fileName,
+            $totalEmployeesImported
+        ));
+
         return response()->json([
             'status' => true,
             'message' => 'Arquivo importado com sucesso.',
-            'total_rows' => count($arrayValues)
+            '$totalEmployeesImported' => $totalEmployeesImported
         ], 201);
     }
 }
