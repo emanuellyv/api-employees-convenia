@@ -19,4 +19,9 @@ class Employee extends Model
         'city',
         'state'
     ];
+
+    public function manager(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Manager::class);
+    }
 }
