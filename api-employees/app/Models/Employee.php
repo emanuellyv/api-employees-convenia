@@ -3,13 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * @method static insert(array $arrayValues)
- * @method static where(string $string, mixed $key)
- * @method static orderBy(string $string, string $string1)
- * @method static create(array $array)
- */
 class Employee extends Model
 {
     protected $fillable = [
@@ -17,10 +12,11 @@ class Employee extends Model
         'email',
         'cpf',
         'city',
-        'state'
+        'state',
+        'manager_id'
     ];
 
-    public function manager(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function manager(): BelongsTo
     {
         return $this->belongsTo(Manager::class);
     }
