@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Manager;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class ManagerSeeder extends Seeder
 {
@@ -15,14 +16,16 @@ class ManagerSeeder extends Seeder
         if (!Manager::where('email', 'emanuellyvalenga.dev@gmail.com')->exists()) {
             Manager::create([
                 'name' => 'Emanuelly',
-                'email' => 'emanuellyvalenga.dev@gmail.com'
+                'email' => 'emanuellyvalenga.dev@gmail.com',
+                'password' => bcrypt('123456abc', ['rounds' => 12])
             ]);
         }
 
-        if (!Manager::where('email', 'isabellegomes0120@gmail.com')->exists()) {
+        if (!Manager::where('email', 'manager-teste@gmail.com')->exists()) {
             Manager::create([
-                'name' => 'Isabelle',
-                'email' => 'isabellegomes0120@gmail.com'
+                'name' => 'Manager',
+                'email' => 'manager-teste@gmail.com',
+                'password' => bcrypt('123456abc', ['rounds' => 12])
             ]);
         }
     }
