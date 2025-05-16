@@ -1,29 +1,370 @@
 {
 	"info": {
-		"_postman_id": "32d66144-cef4-4063-9219-25793ff83c9f",
+		"_postman_id": "72fe86c2-a50d-4d86-a8db-21a1358ec857",
 		"name": "API Employees",
-		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
-		"_exporter_id": "39512453"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44932781",
+		"_collection_link": "https://emanuellyvalenga.postman.co/workspace/c6c5a526-9d52-49fc-8905-17875b5b36ff/collection/44932781-72fe86c2-a50d-4d86-a8db-21a1358ec857?action=share&source=collection_link&creator=44932781"
 	},
 	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"manager-teste@gmail.com\",\n    \"password\": \"123456abc\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{urlLocal}}api/manager/login",
+							"host": [
+								"{{urlLocal}}api"
+							],
+							"path": [
+								"manager",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL21hbmFnZXIvbG9naW4iLCJpYXQiOjE3NDczMzA0MDYsImV4cCI6MTc0NzMzNDAwNiwibmJmIjoxNzQ3MzMwNDA2LCJqdGkiOiJ4SGhJdjFGd2RvWTM2MWkxIiwic3ViIjoiMiIsInBydiI6IjZlNjg5NjIyNTRkNmRmNDAxZDAzYjMwYTM5ZTE2MjM2NGUxNjQ2Y2QifQ.0aBSi8e46Jj90hkHu6iwro1Mj_EwDxvvrgN2_wSoDPo",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{urlLocal}}api/logout",
+							"host": [
+								"{{urlLocal}}api"
+							],
+							"path": [
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Employee",
+			"item": [
+				{
+					"name": "List all employees",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{urlLocal}}api/employees/",
+							"host": [
+								"{{urlLocal}}api"
+							],
+							"path": [
+								"employees",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List employee by id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{urlLocal}}api/employees/2",
+							"host": [
+								"{{urlLocal}}api"
+							],
+							"path": [
+								"employees",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add employee",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL21hbmFnZXIvbG9naW4iLCJpYXQiOjE3NDczMzY3MTQsImV4cCI6MTc0NzM0MDMxNCwibmJmIjoxNzQ3MzM2NzE0LCJqdGkiOiJtd0dnNFp3TVByYnAzMk1VIiwic3ViIjoiMiIsInBydiI6IjZlNjg5NjIyNTRkNmRmNDAxZDAzYjMwYTM5ZTE2MjM2NGUxNjQ2Y2QifQ.QjLClM7bgzwPfxfNIea1-hDCgfKV2DYBL33jtORXE4w",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Colaborador 2\",\n    \"email\": \"colaborador2-teste@gmail.com\",\n    \"cpf\": \"000.000.000-02\",\n    \"city\": \"Curitiba\",\n    \"state\": \"Paraná\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{urlLocal}}api/employees/",
+							"host": [
+								"{{urlLocal}}api"
+							],
+							"path": [
+								"employees",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit employee",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Colaborador Editado\",\n    \"email\": \"colaborador-editado-teste@gmail.com\",\n    \"cpf\": \"000.000.000-00\",\n    \"city\": \"Curitiba\",\n    \"state\": \"Paraná\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{urlLocal}}api/employees/2",
+							"host": [
+								"{{urlLocal}}api"
+							],
+							"path": [
+								"employees",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete employee",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{urlLocal}}api/employees/2",
+							"host": [
+								"{{urlLocal}}api"
+							],
+							"path": [
+								"employees",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Import CSV",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/home/emanuelly/Downloads/employees.csv"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{urlLocal}}api/employees/import",
+							"host": [
+								"{{urlLocal}}api"
+							],
+							"path": [
+								"employees",
+								"import"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
 		{
 			"name": "Manager",
 			"item": [
 				{
 					"name": "List all managers",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
-						"url": "{{urlLocal}}api/managers/"
+						"url": {
+							"raw": "{{urlLocal}}api/managers/",
+							"host": [
+								"{{urlLocal}}api"
+							],
+							"path": [
+								"managers",
+								""
+							]
+						}
 					},
 					"response": []
 				},
 				{
 					"name": "List manager by id",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL21hbmFnZXIvbG9naW4iLCJpYXQiOjE3NDcyNjM5MjEsImV4cCI6MTc0NzI2NzUyMSwibmJmIjoxNzQ3MjYzOTIxLCJqdGkiOiJ2bHBtZmE5RTl6am5heUJxIiwic3ViIjoiMiIsInBydiI6IjZlNjg5NjIyNTRkNmRmNDAxZDAzYjMwYTM5ZTE2MjM2NGUxNjQ2Y2QifQ.T4ddPIIl87SySqProzQksAYe85b97DHo6foLpAAkVxw",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
-						"url": "{{urlLocal}}api/managers/1"
+						"url": {
+							"raw": "{{urlLocal}}api/managers/2",
+							"host": [
+								"{{urlLocal}}api"
+							],
+							"path": [
+								"managers",
+								"2"
+							]
+						}
 					},
 					"response": []
 				},
@@ -34,14 +375,23 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Stefano\",\n    \"email\": \"stefano@teste.com\"\n}",
+							"raw": "{\n    \"name\": \"Emanuelly\",\n    \"email\": \"emanuellyvalenga.dev@mgial.com\",\n    \"password\": \"123456\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "{{urlLocal}}api/managers/"
+						"url": {
+							"raw": "{{urlLocal}}api/managers/",
+							"host": [
+								"{{urlLocal}}api"
+							],
+							"path": [
+								"managers",
+								""
+							]
+						}
 					},
 					"response": []
 				},
@@ -59,7 +409,16 @@
 								}
 							}
 						},
-						"url": "{{urlLocal}}api/managers/1"
+						"url": {
+							"raw": "{{urlLocal}}api/managers/1",
+							"host": [
+								"{{urlLocal}}api"
+							],
+							"path": [
+								"managers",
+								"1"
+							]
+						}
 					},
 					"response": []
 				},
@@ -68,98 +427,16 @@
 					"request": {
 						"method": "DELETE",
 						"header": [],
-						"url": "{{urlLocal}}api/managers/3"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Auth",
-			"item": [
-				{
-					"name": "Login",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"\",\n    \"password\": \"\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": "{{urlLocal}}"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Employee",
-			"item": [
-				{
-					"name": "List all employees",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": "{{urlLocal}}api/employees/"
-					},
-					"response": []
-				},
-				{
-					"name": "List employee by id",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": "{{urlLocal}}api/employees/102"
-					},
-					"response": []
-				},
-				{
-					"name": "Add employee",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Emanuelly\",\n    \"email\": \"emanuelly.valenga@gmail.com\",\n    \"cpf\": \"059.144.999-41\",\n    \"city\": \"Curitiba\",\n    \"state\": \"Paraná\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": "{{urlLocal}}api/employees/"
-					},
-					"response": []
-				},
-				{
-					"name": "Edit employee",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Emanuelly Editada\",\n    \"email\": \"emanuelly.valenga-editada@gmail.com\",\n    \"cpf\": \"059.144.999-41\",\n    \"city\": \"Curitiba\",\n    \"state\": \"Paraná\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": "{{urlLocal}}api/employees/102"
-					},
-					"response": []
-				},
-				{
-					"name": "Delete employee",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": "{{urlLocal}}api/employees/102"
+						"url": {
+							"raw": "{{urlLocal}}api/managers/1",
+							"host": [
+								"{{urlLocal}}api"
+							],
+							"path": [
+								"managers",
+								"1"
+							]
+						}
 					},
 					"response": []
 				}
