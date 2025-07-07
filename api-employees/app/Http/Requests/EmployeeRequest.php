@@ -20,32 +20,43 @@ class EmployeeRequest extends FormRequest
     {
         throw new HttpResponseException(response()->json([
             'status' => false,
-            'errors' => $validator->errors()
+            'errors' => $validator->errors(),
         ], 422));
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'cpf' => preg_replace('/[^0-9]/', '', $this->cpf),
+        ]);
     }
 
     public function rules(): array
     {
-        $employeeId = $this->route('employee');
+        $employee = $this->route('employee');
 
         return [
-            'name' => 'required',
-            'email' => 'required|email',
-            'cpf' => 'required|unique:employees,cpf,' . ($employeeId ? $employeeId->id : null),
-            'city' => 'required',
-            'state' => 'required'
+            'name'  => 'required|max:80|regex:/^[\pL\s\-]+$/u',
+            'email' => 'required|email|unique:employees,email,' . ($employee ? $employee->id : null),
+            'cpf'   => 'required|digits:11|unique:employees,cpf,' . ($employee ? $employee->id : null),
+            'city'  => 'required',
+            'state' => 'required',
         ];
     }
 
     public function messages(): array
     {
         return [
-            'name.required' => 'É obrigatório informar o nome do colaborador',
+            'name.required'  => 'É obrigatório informar o nome do colaborador',
+            'name.max'       => 'O nome deve conter no máximo 80 caracteres',
+            'name.regex'     => 'O nome deve conter apenas letras.',
             'email.required' => 'É obrigatório informar o email do colaborador',
-            'email.email' => 'É necessário informar um email válido.',
-            'cpf.unique' => 'O CPF informado já está cadastrado.',
-            'cpf.required' => 'É obrigatório informar o CPF do colaborador',
-            'city.required' => 'É obrigatório informar a cidade do colaborador',
+            'email.email'    => 'É necessário informar um email válido.',
+            'email.unique'   => 'O email informado já está cadastrado.',
+            'cpf.unique'     => 'O CPF informado já está cadastrado.',
+            'cpf.required'   => 'É obrigatório informar o CPF do colaborador',
+            'cpf.digits'     => 'O CPF deve ter 11 números.',
+            'city.required'  => 'É obrigatório informar a cidade do colaborador',
             'state.required' => 'É obrigatório informar o estado do colaborador',
         ];
     }

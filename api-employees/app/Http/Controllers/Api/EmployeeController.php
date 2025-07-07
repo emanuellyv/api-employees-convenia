@@ -4,64 +4,61 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EmployeeRequest;
-use App\Mail\EmployeeImportSuccess;
+use App\Http\Requests\ImportEmployeesRequest;
+use App\Jobs\ImportCSVJob;
 use App\Models\Employee;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 
+/**
+ * @method authorize(string $string, string $class)
+ */
 class EmployeeController extends Controller
 {
-
     /**
      * Lista todos os colaboradores vinculados ao gestor autenticado
      *
-     * @return JsonResponse
      */
     public function index(): JsonResponse
     {
+        $this->authorize('viewAny', Employee::class);
         $manager = auth('manager')->user();
         $employees = $manager->employees;
 
         return response()->json([
-            'status' => true,
-            'message' => $employees
+            'status'  => true,
+            'message' => $employees,
         ], 200);
     }
 
     /**
      * Cadastra um novo colaborador e vincula ao gestor autenticado
      *
-     * @param EmployeeRequest $request
-     * @return JsonResponse
      */
     public function store(EmployeeRequest $request): JsonResponse
     {
+        $this->authorize('create', Employee::class);
+
         DB::beginTransaction();
 
         try {
             $manager = auth('manager')->user();
 
-            $employee = $manager->employees()->create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'cpf' => $request->cpf,
-                'city' => $request->city,
-                'state' => $request->state,
-            ]);
+            $employee = $manager->employees()->create($request->validated());
             DB::commit();
 
             return response()->json([
-                'status' => true,
+                'status'   => true,
                 'employee' => $employee,
-                'message' => 'Colaborador cadastrado com sucesso.'
+                'message'  => 'Colaborador cadastrado com sucesso.',
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
-                'status' => false,
-                'message' => 'Erro ao cadastrar o colaborador.'
+                'status'  => false,
+                'message' => 'Erro ao cadastrar o colaborador.',
             ], 400);
         }
     }
@@ -69,62 +66,42 @@ class EmployeeController extends Controller
     /**
      * Retorna os dados do colaborador informado na URL
      *
-     * @param Employee $employee
-     * @return JsonResponse
      */
     public function show(Employee $employee): JsonResponse
     {
-        if ($employee->manager_id !== auth('manager')->id()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Acesso não autorizado.'
-            ], 403);
-        }
+        $this->authorize('view', $employee);
 
         return response()->json([
-            'status' => true,
-            'message' => $employee
+            'status'  => true,
+            'message' => $employee,
         ], 200);
     }
 
     /**
      * Atualiza os dados do colaborador
      *
-     * @param EmployeeRequest $request
-     * @param Employee $employee
-     * @return JsonResponse
      */
     public function update(EmployeeRequest $request, Employee $employee): JsonResponse
     {
-        if ($employee->manager_id !== auth('manager')->id()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Acesso não autorizado.'
-            ], 403);
-        }
+        $this->authorize('update', $employee);
 
         DB::beginTransaction();
 
         try {
-            $employee->update([
-                'name' => $request->name,
-                'email' => $request->email,
-                'cpf' => $request->cpf,
-                'city' => $request->city,
-                'state' => $request->state,
-            ]);
+            $employee->update($request->validated());
             DB::commit();
 
             return response()->json([
-                'status' => true,
+                'status'   => true,
                 'employee' => $employee,
-                'message' => 'Colaborador editado com sucesso.'
+                'message'  => 'Colaborador editado com sucesso.',
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
-                'status' => false,
-                'message' => 'Erro ao editar o colaborador.'
+                'status'  => false,
+                'message' => 'Erro ao editar o colaborador.',
             ], 400);
         }
     }
@@ -132,17 +109,10 @@ class EmployeeController extends Controller
     /**
      * Deleta um colaborador do banco de dados
      *
-     * @param Employee $employee
-     * @return JsonResponse
      */
     public function destroy(Employee $employee): JsonResponse
     {
-        if ($employee->manager_id !== auth('manager')->id()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Acesso não autorizado.'
-            ], 403);
-        }
+        $this->authorize('delete', $employee);
 
         DB::beginTransaction();
 
@@ -151,14 +121,14 @@ class EmployeeController extends Controller
             DB::commit();
 
             return response()->json([
-                'status' => true,
+                'status'   => true,
                 'employee' => $employee,
-                'message' => 'Colaborador excluído com sucesso.'
+                'message'  => 'Colaborador excluído com sucesso.',
             ], 200);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return response()->json([
-                'status' => false,
-                'message' => 'Erro ao excluir o colaborador.'
+                'status'  => false,
+                'message' => 'Erro ao excluir o colaborador.',
             ], 400);
         }
     }
@@ -167,64 +137,22 @@ class EmployeeController extends Controller
      * Importa colaboradores em massa a partir de um arquivo CSV e retorna a quantidade cadastrada
      * O arquivo CSV deve conter os cabeçalhos: name, email, cpf, city, state
      *
-     * @param Request $request
-     * @return JsonResponse
      */
-    public function import(Request $request): JsonResponse
+    public function import(ImportEmployeesRequest $request): JsonResponse
     {
-        $request->validate([
-            'file' => 'required|mimes:csv,txt',
-        ], [
-            'file.required' => 'É obrigatório selecionar um arquivo.',
-            'file.mimes' => 'O arquivo deve ser um CSV.',
-        ]);
+        $this->authorize('import', Employee::class);
 
-        $headers = ['name', 'email', 'cpf', 'city', 'state'];
+        $fileName = 'import-' . now()->format('Y-m-d-H-i-s') . '.csv';
 
-        $dataFile = array_map('str_getcsv', file($request->file('file')->getRealPath()));
-        $headersRow = array_shift($dataFile);
+        $path = $request->file('file')->storeAs('imports', $fileName);
 
-        $cpfAlreadyExist = [];
-        $arrayValues = [];
+        $manager = Auth::guard('manager')->user();
 
-        foreach ($dataFile as $keyData => $row) {
-            foreach ($headers as $key => $header) {
-
-                if ($header === 'cpf' ) {
-                    if (Employee::where('cpf', $row[$key])->first()) {
-                        $cpfAlreadyExist[] = $row[$key];
-                    }
-                }
-
-                $arrayValues[$keyData][$header] = $row[$key];
-            }
-            $arrayValues[$keyData]['manager_id'] = auth('manager')->id();
-        }
-
-        if (!empty($cpfAlreadyExist)) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Existem CPFs já cadastrados.',
-                'cpf_already_exist' => $cpfAlreadyExist,
-            ], 409);
-        }
-
-        Employee::insert($arrayValues);
-
-        $managerName = auth('manager')->user();
-        $totalEmployeesImported = (int) count($arrayValues);
-        $fileName = $request->file('file')->getClientOriginalName();
-
-        Mail::to($managerName->email)->send(new EmployeeImportSuccess(
-            $managerName->name,
-            $fileName,
-            $totalEmployeesImported
-        ));
+        ImportCSVJob::dispatch($path, $manager->id, $manager->name, $manager->email);
 
         return response()->json([
-            'status' => true,
-            'message' => 'Arquivo importado com sucesso.',
-            '$totalEmployeesImported' => $totalEmployeesImported
+            'status'  => true,
+            'message' => 'Importação iniciada com sucesso.',
         ], 201);
     }
 }

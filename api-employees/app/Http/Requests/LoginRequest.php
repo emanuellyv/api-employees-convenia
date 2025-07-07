@@ -20,14 +20,14 @@ class LoginRequest extends FormRequest
     {
         throw new HttpResponseException(response()->json([
             'status' => false,
-            'errors' => $validator->errors()
+            'errors' => $validator->errors(),
         ], 422));
     }
 
     public function rules(): array
     {
         return [
-            'email' => 'required|email',
+            'email'    => 'required|email',
             'password' => 'required|string',
         ];
     }
@@ -35,8 +35,8 @@ class LoginRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'email.required' => 'É obrigatório informar o email.',
-            'email.email' => 'Informe um email válido.',
+            'email.required'    => 'É obrigatório informar o email.',
+            'email.email'       => 'Informe um email válido.',
             'password.required' => 'É obrigatório informar a senha.',
         ];
     }
